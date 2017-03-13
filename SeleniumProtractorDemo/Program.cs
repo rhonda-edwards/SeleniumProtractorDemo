@@ -26,13 +26,15 @@ namespace ConsoleApplication1
 
             ngDriver.Navigate().GoToUrl("http://www.glintinc.com/pulsepreview/");
 
-
+            //determines progress bar values
             var progress = ngDriver.FindElement(By.ClassName("lightText"));
-
-
             var valueMax = progress.GetAttribute("aria-valuemax");
+            var valueNow = progress.GetAttribute("aria-valuenow");
+            var ctrNow = int.Parse(valueNow);
             var ctr = int.Parse(valueMax);
             Console.WriteLine(valueMax);
+            Console.WriteLine(valueNow);
+
             Random rnd = new Random();
 
             var incrementer = ctr - 1;
@@ -41,21 +43,29 @@ namespace ConsoleApplication1
 
             for (int i = 0; i < ctr; i++)
             {
-                var stopIndex = ctr - 1; 
+                var stopIndex = ctr - 1;
                 //var progress = ngDriver.FindElement(By.ClassName("lightText"));
                 //var valueCurrently = progressInit.GetAttribute("aria-valuenow");
+                var progressLoop = ngDriver.FindElement(By.ClassName("lightText"));
+                var valueNowLoop = progress.GetAttribute("aria-valuenow");
+                Console.WriteLine("The progress bar current value is: " + valueNowLoop);
+
+
                 int choice = rnd.Next(1, 7);
                 if (i == 0)
                 {
                     NgWebElement question = ngDriver.FindElements(NgBy.Model("answer.questionAnswerValue"))[1];
                     question.SendKeys("{ ENTER }");
+                    Console.WriteLine("Answer Value Clicked");
                 }
 
                 if (i > 0 && i < stopIndex)
                 {
                     new WebDriverWait(ngDriver, TimeSpan.FromSeconds(30)).Until(ExpectedConditions.ElementExists(NgBy.Repeater("question in section.activeQuestions")));
                     var questionResponse = ngDriver.FindElements(NgBy.Repeater("question in section.activeQuestions"))[i];
-                    var elementGo = questionResponse.FindElements(NgBy.Model("answer.questionAnswerValue"))[i];//.SendKeys("{ ENTER }");
+                    var elementGo = questionResponse.FindElements(NgBy.Model("answer.questionAnswerValue"))[i];
+                    Console.WriteLine("Question Element Found");
+
                     if (elementGo != null)
                     {
 
@@ -70,11 +80,13 @@ namespace ConsoleApplication1
                         var mouse1 = builder.MoveToElement(commentBox).Click().Build();
                         mouse1.Perform();
                         //SetTimer();
+                        Console.WriteLine("Comment Clicked");
                         new WebDriverWait(ngDriver, TimeSpan.FromSeconds(60)).Until(ExpectedConditions.ElementExists(NgBy.Model("answer.questionAnswerComment")));
                         questionResponse.FindElement(NgBy.Model("answer.questionAnswerComment")).SendKeys("Test");
                         new WebDriverWait(ngDriver, TimeSpan.FromSeconds(60)).Until(ExpectedConditions.ElementExists(By.XPath(".//*[contains(text(),'Save')]")));
                         new WebDriverWait(ngDriver, TimeSpan.FromSeconds(60)).Until(ExpectedConditions.ElementToBeClickable(questionResponse.FindElement(By.XPath(".//*[contains(text(),'Save')]"))));
                         questionResponse.FindElement(By.XPath(".//*[contains(text(),'Save')]")).Click();
+                        Console.WriteLine("Comment submitted");
                         //ngDriver.WaitForAngular();
                         //IWebElement element = ngDriver.WrappedDriver.FindElement(By.XPath(".//*[contains(text(),'Save')]"));
                         //element.Click();
@@ -88,10 +100,12 @@ namespace ConsoleApplication1
 
                     NgWebElement questionComment = ngDriver.FindElements(NgBy.Repeater("question in section.activeQuestions"))[i];
                     questionComment.FindElement(NgBy.Model("answer.questionAnswerComment")).SendKeys("Look at this!");
+                    Console.WriteLine("Comment added");
                     //Puts comments in question 7
 
                     new WebDriverWait(ngDriver, TimeSpan.FromSeconds(15)).Until(ExpectedConditions.ElementToBeClickable(questionComment.FindElement(By.XPath(".//*[contains(text(),'Save')]"))));
                     questionComment.FindElement(By.XPath(".//*[contains(text(),'Save')]")).Click();
+                    Console.WriteLine("Comment submitted");
                 }
 
                 //var valueMin = progress.GetAttribute("aria-valuemin");
@@ -104,6 +118,10 @@ namespace ConsoleApplication1
             var submitFinal = ngDriver.FindElement(By.ClassName("submitBtnOuter"));
             //ngDriver.WaitForAngular();
             submitFinal.Click();
+
+            var progressFinal = ngDriver.FindElement(By.ClassName("lightText"));
+            var valueNowFinal = progress.GetAttribute("aria-valuenow");
+            Console.WriteLine("The progress bar final value is: " + valueNowFinal);
         }
 
         private static void SetTimer()
